@@ -1,6 +1,6 @@
 "use client";
 
-import { Formik, Field, FieldArray, Form } from "formik";
+import { Formik, Field, FieldArray, Form, FormikHelpers } from "formik";
 import Link from "next/link";
 import type { QuestionType, QuizFormValues, QuestionOptionForm } from "@/types/quiz";
 import { emptyQuestion, emptyOption, isCheckboxQuestion } from "@/utils/formUtils";
@@ -17,25 +17,30 @@ const initialValues: QuizFormValues = {
 export default function CreateQuizForm() {
   const validationSchema = createQuizValidationSchema();
 
+  async function handleSubmit(
+    values: QuizFormValues,
+    { setSubmitting, setStatus }: FormikHelpers<QuizFormValues>
+  ) {
+    setStatus(null);
+    try {
+      const payload = formatCreateQuizPayload(values);
+      await createQuiz(payload);
+      setStatus({ type: "success" });
+    } catch (e) {
+      setStatus({
+        type: "error",
+        message: e instanceof Error ? e.message : "Failed to create quiz",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <Formik<QuizFormValues>
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={async (values, { setSubmitting, setStatus }) => {
-        setStatus(null);
-        try {
-          const payload = formatCreateQuizPayload(values);
-          await createQuiz(payload);
-          setStatus({ type: "success" });
-        } catch (e) {
-          setStatus({
-            type: "error",
-            message: e instanceof Error ? e.message : "Failed to create quiz",
-          });
-        } finally {
-          setSubmitting(false);
-        }
-      }}
+      onSubmit={handleSubmit}
     >
       {({ values, status, isSubmitting, setFieldValue }) => (
         <Form className="space-y-8">
