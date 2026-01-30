@@ -1,0 +1,24 @@
+# Dependencies and build
+node_modules
+.next
+out
+dist
+build
+coverage
+
+# Lock files and generated
+package-lock.json
+*.min.js
+*.min.css
+
+# Prisma
+backend/prisma/migrations
+
+# Env (don't format)
+.env
+.env.*
+!.env.example
+
+# Misc
+.cache
+*.log

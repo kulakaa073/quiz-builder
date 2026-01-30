@@ -1,177 +1,74 @@
 # Quiz Builder
 
-Monorepo with a **Next.js** frontend and **Node.js/Express** backend. Backend uses TypeScript, Prisma, and PostgreSQL. Frontend uses TypeScript, Tailwind CSS, and Formik for forms.
-
-## Project structure
-
-```
-quiz-builder/
-├── backend/          # Express API, Prisma, PostgreSQL
-├── frontend/         # Next.js app, Tailwind, Formik
-├── package.json      # Root workspace (npm workspaces)
-└── README.md
-```
-
-## Prerequisites
-
-- **Node.js** 18+ and npm
-- **PostgreSQL** (local or remote) for the backend database
+Next.js frontend and Express backend (TypeScript, Prisma, PostgreSQL). Create and manage quizzes with True/False, short-answer, and multiple-choice questions.
 
 ---
 
-## 1. Database setup (PostgreSQL)
+## 1. Set up the database
 
-**Note:** PostgreSQL does **not** need to be installed on your machine. The backend connects to whatever `DATABASE_URL` points to. You can use:
-- **Local** – PostgreSQL installed on your computer or in Docker (see steps below).
-- **External/cloud** – A hosted PostgreSQL instance (e.g. [Supabase](https://supabase.com), [Neon](https://neon.tech), [Railway](https://railway.app), Heroku Postgres, AWS RDS). Create a database in the service, copy its connection string, and set `DATABASE_URL` in `backend/.env`. No local PostgreSQL install required.
+- Use **PostgreSQL** (local or cloud). The app connects to whatever you put in `DATABASE_URL`; no need to install PostgreSQL on your machine if you use a hosted service (e.g. [Supabase](https://supabase.com), [Neon](https://neon.tech)).
+- Create a database (e.g. `quiz_builder`). Connection URL format:  
+  `postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public`
 
-1. **If using local PostgreSQL:** Install and run PostgreSQL (e.g. [PostgreSQL downloads](https://www.postgresql.org/download/) or Docker: `docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres`).
+In the **backend** folder:
 
-2. Create a database (e.g. `quiz_builder`):
-   ```bash
-   # Using psql or any PostgreSQL client:
-   CREATE DATABASE quiz_builder;
-   ```
-
-3. **Connection details** – where each value comes from:
-
-   | Value      | Local install | Docker (`postgres` image) |
-   |-----------|----------------|---------------------------|
-   | **Host**  | `localhost`    | `localhost`               |
-   | **Port**  | `5432` (default) | `5432`                  |
-   | **User**  | The OS user you use for PostgreSQL, or `postgres` | `postgres` |
-   | **Password** | The one you set during PostgreSQL install | Value of `POSTGRES_PASSWORD` (e.g. `postgres`) |
-   | **Database** | Name you created, e.g. `quiz_builder` | Same; create it with `CREATE DATABASE quiz_builder;` inside the container or via a client |
-
-   **Local (Windows):** After installing PostgreSQL, the default superuser is often `postgres`; the installer may ask you to set its password. Use that user and password in `DATABASE_URL`.
-
-   **Docker:** With `-e POSTGRES_PASSWORD=postgres`, user is `postgres`, password is `postgres`. To create the DB:  
-   `docker exec -it <container_id> psql -U postgres -c "CREATE DATABASE quiz_builder;"`
-
-   **URL format:** `postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public`
-
----
-
-## 2. Backend setup
-
-1. Go to the backend folder:
+1. Copy env and set the URL:
    ```bash
    cd backend
-   ```
-
-2. Copy the example env file and set your database URL:
-   ```bash
    cp .env.example .env
    ```
-   Edit `.env` and set:
-   ```env
-   DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/quiz_builder?schema=public"
-   ```
-   Replace `USER` and `PASSWORD` with your PostgreSQL user and password.
+   Edit `.env` and set `DATABASE_URL` to your PostgreSQL connection string.
 
-3. Install dependencies (from repo root or from `backend`):
-   ```bash
-   # From repo root:
-   npm install
-   # Or only backend:
-   cd backend && npm install
-   ```
+2. Install dependencies (from repo root: `npm install`, or `cd backend && npm install`).
 
-4. Generate the Prisma client and sync the database:
+3. Generate the Prisma client and create tables:
    ```bash
-   cd backend
    npm run db:generate
    npm run db:push
    ```
-   - `db:generate` – generates the Prisma client.
-   - `db:push` – pushes the schema to the database (creates/updates tables).  
-   For migration-based workflow use: `npm run db:migrate` instead of `db:push`.
-
-5. (Optional) Seed the database with an example quiz:
-   ```bash
-   npm run db:seed
-   ```
-   **What `db:seed` does:** It runs the script `prisma/seed.ts`, which inserts initial data into the database. In this project it creates one **Example Quiz** (only if no quizzes exist yet) with three questions: a True/False, a short-answer, and a multiple-choice. Useful for trying the app without creating a quiz from the UI. If you run `db:seed` again after quizzes already exist, the script skips and does not duplicate the example.
-
-6. Start the backend:
-   ```bash
-   npm run dev
-   ```
-   API runs at **http://localhost:4000** (or the port in `PORT` in `.env`).  
-   - Health: http://localhost:4000/health  
+   (For migrations instead of push: `npm run db:migrate`.)
 
 ---
 
-## 3. Frontend setup
-
-1. Go to the frontend folder:
-   ```bash
-   cd frontend
-   ```
-
-2. (Optional) Copy the example env if you need to point to a different API:
-   ```bash
-   cp .env.example .env.local
-   ```
-   Default is `NEXT_PUBLIC_API_URL=http://localhost:4000`.
-
-3. Install dependencies (from repo root or from `frontend`):
-   ```bash
-   # From repo root (if not done yet):
-   npm install
-   # Or only frontend:
-   cd frontend && npm install
-   ```
-
-4. Start the frontend:
-   ```bash
-   npm run dev
-   ```
-   App runs at **http://localhost:3000**.
-
----
-
-## 4. Running everything from the root
+## 2. Start backend and frontend
 
 From the **repository root** (after `npm install` once):
 
-- **Backend only:**
-  ```bash
-  npm run dev:backend
-  ```
-
-- **Frontend only:**
-  ```bash
-  npm run dev:frontend
-  ```
-
-- **Both at once:**
+- **Both:**  
   ```bash
   npm run dev
   ```
-  This starts backend (port 4000) and frontend (port 3000) together.
+  Backend: **http://localhost:4000** · Frontend: **http://localhost:3000**
+
+- **Backend only:** `npm run dev:backend`  
+- **Frontend only:** `npm run dev:frontend`  
+  (Optional: `cd frontend` → `cp .env.example .env.local` if you need a different API URL; default is `http://localhost:4000`.)
+
+---
+
+## 3. Create a sample quiz
+
+From the **backend** folder:
+
+```bash
+cd backend
+npm run db:seed
+```
+
+This adds one **Example Quiz** (only if no quizzes exist yet) with three questions: True/False, short-answer, and multiple-choice. Run it once to try the app; running it again skips if quizzes already exist.
+
+You can also create quizzes in the app at **http://localhost:3000/create**.
 
 ---
 
 ## Quick reference
 
-| Task              | Command (from root)   | Command (from package dir) |
-|-------------------|------------------------|----------------------------|
-| Install all       | `npm install`          | `cd backend` or `cd frontend` then `npm install` |
-| Run both          | `npm run dev`          | -                          |
-| Run backend       | `npm run dev:backend`  | `cd backend` → `npm run dev` |
-| Run frontend      | `npm run dev:frontend` | `cd frontend` → `npm run dev` |
-| DB generate       | -                      | `cd backend` → `npm run db:generate` |
-| DB push schema    | -                      | `cd backend` → `npm run db:push` |
-| DB migrations     | -                      | `cd backend` → `npm run db:migrate` |
-| DB seed (example quiz) | -                 | `cd backend` → `npm run db:seed` |
-| Prisma Studio     | -                      | `cd backend` → `npm run db:studio` |
+| Task           | Command |
+|----------------|---------|
+| Install        | `npm install` (from root) |
+| Start both     | `npm run dev` (from root) |
+| DB tables      | `cd backend` → `npm run db:generate` then `npm run db:push` |
+| Sample quiz    | `cd backend` → `npm run db:seed` |
+| Format / lint  | `npm run format` and `npm run lint` (from root) |
 
----
-
-## Tech stack
-
-- **Backend:** Node.js, Express, TypeScript, Prisma, PostgreSQL  
-- **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS, Formik  
-
-Ensure PostgreSQL is running and `backend/.env` has a valid `DATABASE_URL` before starting the backend.
+Tech: **Backend** – Node, Express, Prisma, PostgreSQL. **Frontend** – Next.js, Tailwind, Formik.
