@@ -21,7 +21,11 @@ quiz-builder/
 
 ## 1. Database setup (PostgreSQL)
 
-1. Install and run PostgreSQL (e.g. [PostgreSQL downloads](https://www.postgresql.org/download/) or Docker: `docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres`).
+**Note:** PostgreSQL does **not** need to be installed on your machine. The backend connects to whatever `DATABASE_URL` points to. You can use:
+- **Local** – PostgreSQL installed on your computer or in Docker (see steps below).
+- **External/cloud** – A hosted PostgreSQL instance (e.g. [Supabase](https://supabase.com), [Neon](https://neon.tech), [Railway](https://railway.app), Heroku Postgres, AWS RDS). Create a database in the service, copy its connection string, and set `DATABASE_URL` in `backend/.env`. No local PostgreSQL install required.
+
+1. **If using local PostgreSQL:** Install and run PostgreSQL (e.g. [PostgreSQL downloads](https://www.postgresql.org/download/) or Docker: `docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres`).
 
 2. Create a database (e.g. `quiz_builder`):
    ```bash
@@ -83,10 +87,11 @@ quiz-builder/
    - `db:push` – pushes the schema to the database (creates/updates tables).  
    For migration-based workflow use: `npm run db:migrate` instead of `db:push`.
 
-5. (Optional) Seed the database:
+5. (Optional) Seed the database with an example quiz:
    ```bash
    npm run db:seed
    ```
+   **What `db:seed` does:** It runs the script `prisma/seed.ts`, which inserts initial data into the database. In this project it creates one **Example Quiz** (only if no quizzes exist yet) with three questions: a True/False, a short-answer, and a multiple-choice. Useful for trying the app without creating a quiz from the UI. If you run `db:seed` again after quizzes already exist, the script skips and does not duplicate the example.
 
 6. Start the backend:
    ```bash
@@ -159,7 +164,7 @@ From the **repository root** (after `npm install` once):
 | DB generate       | -                      | `cd backend` → `npm run db:generate` |
 | DB push schema    | -                      | `cd backend` → `npm run db:push` |
 | DB migrations     | -                      | `cd backend` → `npm run db:migrate` |
-| DB seed           | -                      | `cd backend` → `npm run db:seed` |
+| DB seed (example quiz) | -                 | `cd backend` → `npm run db:seed` |
 | Prisma Studio     | -                      | `cd backend` → `npm run db:studio` |
 
 ---
